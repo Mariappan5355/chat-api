@@ -1,13 +1,19 @@
 import express, { Request, Response } from 'express';
+import apiRoutes from './routes/apiRoutes'
+import dotenv from 'dotenv';
+import { connectDatabase } from './database';
 
+
+dotenv.config();
 const app = express();
-const port = 3000;
+
+const port = process.env.PORT || 3000;
 app.use(express.json());
 
-app.post('/', (req: Request, res: Response) => {
-  res.send('Hello, TypeScript with Express!');
-});
+connectDatabase();
+
+app.use('/api', apiRoutes);
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Server is running on port ${port}`);
 });
