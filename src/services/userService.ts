@@ -32,4 +32,42 @@ export const userService = {
     }
   },
 
+  async getUserByEmail(email: string): Promise<RowDataPacket | null> {
+    try {
+      const connection = getConnection();
+      const [rows] = await connection.promise().query<RowDataPacket[]>(
+        'SELECT * FROM users WHERE email = ?',
+        [email]
+      );
+
+      if (rows.length === 0) {
+        return null;
+      }
+
+      return rows[0];
+    } catch (error) {
+      console.error('Error retrieving user by email:', error);
+      throw new Error('Error retrieving user by email');
+    }
+  },
+  
+
+  async getUserById(id: string): Promise<RowDataPacket | null> {
+    try {
+      const connection = getConnection();
+      const [rows] = await connection.promise().query<RowDataPacket[]>(
+        'SELECT * FROM users WHERE id = ?',
+        [id]
+      );
+
+      if (rows.length === 0) {
+        return null;
+      }
+
+      return rows[0];
+    } catch (error) {
+      console.error('Error retrieving user by email:', error);
+      throw new Error('Error retrieving user by email');
+    }
+  }
 };
