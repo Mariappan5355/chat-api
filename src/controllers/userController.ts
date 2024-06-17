@@ -33,6 +33,37 @@ export const getUser = async (req: Request, res: Response) => {
     }
 };
 
+export const getFriends = async (req: Request, res: Response) => {
+    try {
+        if (!(req as any).user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        const page = parseInt(req.query.page as string) || 1;
+        const pageSize = parseInt(req.query.pageSize as string) || 10;
+        const userInfo = await userService.getFriends((req as any).user.id, page, pageSize);
+
+        res.status(200).json(userInfo);
+    } catch (error) {
+        console.error('Error retrieving user:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+};
+export const allUsers = async (req: Request, res: Response) => {
+    try {
+        if (!(req as any).user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        const page = parseInt(req.query.page as string) || 1;
+        const pageSize = parseInt(req.query.pageSize as string) || 10;
+        const userInfo = await userService.getAllUsersWithStatus((req as any).user.id, page, pageSize);
+
+        res.status(200).json(userInfo);
+    } catch (error) {
+        console.error('Error retrieving user:', error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+};
+
 export const loginUser = async (req: Request, res: Response) => {
     try {
         const { error } = loginSchema.validate(req.body);
@@ -60,6 +91,7 @@ export const loginUser = async (req: Request, res: Response) => {
     }
 };
 
+
 export const registerUser = async (req: Request, res: Response) => {
     try {
         const { error } = registerSchema.validate(req.body);
@@ -82,3 +114,37 @@ export const registerUser = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'An error occurred during registration' });
     }
 };
+
+export const sendFriendRequest = async (req: Request, res: Response) => {
+    try {
+        if (!(req as any).user) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const { receiverId } = req.params;
+        const requesterId =(req as any).user.id;
+
+        await userService.sendFriendRequest(requesterId, receiverId);
+        res.status(201).json({ message: 'Friend request sent' });
+    } catch (error) {
+        console.error('Error sending friend request:', error);
+        res.status(500).json({ error: 'An error occurred while sending the friend request' });
+    }
+};
+
+export const updateFriendRequestStatus = async (req: Request, res: Response) => {
+    
+    if (!(req as any).user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+        }
+    const { requesterId, status } = req.body;
+    const receiverId = (req as any).user.id;
+  
+    try {
+      await userService.updateFriendRequestStatus(requesterId, receiverId, status);
+      res.status(200).json({ message: 'Friend request status updated successfully' });
+    } catch (error) {
+      console.error('Error updating friend request status:', error);
+      res.status(500).json({ error: 'An error occurred while updating friend request status' });
+    }
+  };
